@@ -24,6 +24,7 @@
 #include<time.h>
 #include <iostream>
 #include <windows.h>
+#include<vector>
 
 /*!< Signed integer types  */
 typedef   signed char     s8;

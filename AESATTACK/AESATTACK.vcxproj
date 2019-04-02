@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="AES.h" />
     <ClInclude Include="Attack_On_Round8.h" />
+    <ClInclude Include="Attack_On_Round8_Changed.h" />
     <ClInclude Include="Attack_On_Round9.h" />
     <ClInclude Include="normal_encryption_test.h" />
     <ClInclude Include="pch.h" />
