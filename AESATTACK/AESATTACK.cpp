@@ -5,11 +5,18 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 using namespace std;
+#include"Attack_On_Round8_Changed.h"
 
 
 int main(int argc, char **argv)
 {
+	for (int i = 2; i < 10; i++) {
+		Attack_On8_mega a8(i);
+		a8.test();
+	}
 	
+
+	return 0;
 }
 
 

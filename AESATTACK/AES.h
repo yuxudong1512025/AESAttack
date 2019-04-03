@@ -6,15 +6,12 @@ using namespace std;
 
 
 class AES {
-	static const u32 Rcon[10];
-	static const u8 S_Box[256];//sbox随类编译产生
-	static const u8 Inv_S_Box[256];
 
 private:
 	u8 key[16];
 
 
-	u8 GFMul(u8 a, u8 b);//有限域上的乘法 GF(2^8)
+
 	u32 SubWord(u32& sw);//对输入u32中的每一个字节进行S-盒变换
 	u32 RotWord(u32& rw);// 按字节 循环左移一位
 	u32 Word(u8& k1, u8& k2, u8& k3, u8& k4);//将4个 u8 转换为一个 u32.
@@ -25,7 +22,10 @@ protected:
 public:
 	static const int Nr = 10;  // AES-128需要 10 轮加密
 	static const int Nk = 4;   // Nk 表示输入密钥的 word 个数
-
+	static const u32 Rcon[10];
+	static const u8 S_Box[256];//sbox随类编译产生
+	static const u8 Inv_S_Box[256];
+	u8 GFMul(u8 a, u8 b);//有限域上的乘法 GF(2^8)
 
 	AES() {
 

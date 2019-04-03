@@ -148,7 +148,7 @@ int Attack_On9::HMweight(u8 fckey, int n)
 {
 	if (n > countn) {
 		cout << "n 不能大于" << countn;
-		return 0.0;
+		return 0;
 	}
 	int ans = 0;
 	for (int i = 0; i <= n; i++) {

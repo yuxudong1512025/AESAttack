@@ -50,7 +50,7 @@
     <ClCompile Include="Attack_On_Round9.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UseCudaTemplate.cpp">
+    <ClCompile Include="Attack_On_Round8_Changed.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
