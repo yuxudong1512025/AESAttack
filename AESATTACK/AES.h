@@ -47,6 +47,7 @@ public:
 	void InvMixColumns(u8 mtx[4 * 4]);
 	u8 InvSubByte(u8 mtx);
 	u8 InvMixColumns_singlecol(u8 mtx[4], int i);
+	u8 InvMixColumns_single_half(u8 mtx[2], int i,int mode);
 	///////////////////√‹‘ø¿©’π/////////////////////////////////////
 	void KeyExpansion();
 

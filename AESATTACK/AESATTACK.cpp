@@ -6,15 +6,13 @@
 #include "device_launch_parameters.h"
 using namespace std;
 #include"Attack_On_Round8_Changed.h"
+#include"Attack_On_Round7.h"
 
 
 int main(int argc, char **argv)
 {
-	for (int i = 2; i < 10; i++) {
-		Attack_On8_mega a8(i);
-		a8.test();
-	}
-	
+	Attack_On7 a7(5, 4, 0.8);
+	a7.test();
 
 	return 0;
 }

@@ -141,6 +141,31 @@ u8 AES::InvMixColumns_singlecol(u8 mtx[4], int i)
 	}
 }
 
+u8 AES::InvMixColumns_single_half(u8 mtx[2], int i, int mode)
+{
+	if (mode == 0)
+		switch (i) {
+		case 0:return GFMul(0x0e, mtx[0]) ^ GFMul(0x0b, mtx[1]);
+		case 1:return GFMul(0x09, mtx[0]) ^ GFMul(0x0e, mtx[1]);
+		case 2:return GFMul(0x0d, mtx[0]) ^ GFMul(0x09, mtx[1]);
+		case 3:return GFMul(0x0b, mtx[0]) ^ GFMul(0x0d, mtx[1]);
+		default:return u8(-1);
+		}
+	else {
+		switch (i) {
+		case 0:return  GFMul(0x0d, mtx[0]) ^ GFMul(0x09, mtx[1]);
+		case 1:return  GFMul(0x0b, mtx[0]) ^ GFMul(0x0d, mtx[1]);
+		case 2:return  GFMul(0x0e, mtx[0]) ^ GFMul(0x0b, mtx[1]);
+		case 3:return  GFMul(0x09, mtx[0]) ^ GFMul(0x0e, mtx[1]);
+		default:return u8(-1);
+		}
+	}
+}
+
+
+
+
+
 void AES::KeyExpansion()
 {
 	u32 temp;

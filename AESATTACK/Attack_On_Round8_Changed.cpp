@@ -1,6 +1,21 @@
 #include "pch.h"
 #include "Attack_On_Round8_Changed.h"
 
+Attack_On8_mega::Attack_On8_mega(int n, u32 trueKey, guessNode * gu0, guessNode * gu1)
+{
+	countn = n;
+	key_inlist = false;
+	testkeycount = 0;
+	guess0 = (guessNode *)malloc(65536 * sizeof(guessNode));
+	guess1 = (guessNode *)malloc(65536 * sizeof(guessNode));
+
+	this->trueKey = trueKey;
+	for (int i = 0; i < n - 1; i++) {
+		this->guess0[i] = gu0[i];
+		this->guess1[i] = gu1[i];
+	}
+}
+
 Attack_On8_mega::Attack_On8_mega(int n)
 {
 	countn = n;
@@ -36,6 +51,21 @@ Attack_On8_mega::~Attack_On8_mega()
 		guess1 = NULL;
 	}
 
+}
+
+void Attack_On8_mega::set(int n, u32 trueKey, guessNode * gu0, guessNode * gu1)
+{
+	this->trueKey = trueKey;
+	countn = n;
+	key_inlist = false;
+	testkeycount = 0;
+	guess0 = (guessNode *)malloc(65536 * sizeof(guessNode));
+	guess1 = (guessNode *)malloc(65536 * sizeof(guessNode));
+
+	for (int i = 0; i < 65536; i++) {
+		*(guess0 + i) = *(gu0 + i);
+		*(guess1 + i) = *(gu1 + i);
+	}
 }
 
 void Attack_On8_mega::setRandPlaintxtAndFault(u32 seed)
@@ -133,13 +163,13 @@ void Attack_On8_mega::setguess(u8 type0, u8 type1,int mode)
 		right = trueKey ;
 	}
 
-
+	
 	for (u32 i = 0; i < 256; i++) {
 		for (u32 j = 0; j < 256; j++) {
-			u8 *list = (u8 *)malloc(countn * sizeof(u8));
 			u8 temp, temp1;
+			u8 *list = (u8 *)malloc(countn * sizeof(u8));
 			for (int k = 0;k < countn; k++) {
-				
+			
 				temp = Inv_S_Box[i ^ cipher[2 * k]];
 				temp1 = Inv_S_Box[j ^ cipher[2 * k + 1]];
 
@@ -153,9 +183,10 @@ void Attack_On8_mega::setguess(u8 type0, u8 type1,int mode)
 			}
 
 			it[i * 256 + j].set(countn, i * 256 + j, list);
-
+			free(list);
 		}
-	}			/*printf("\n");*/
+	}
+	;/*printf("\n");*/
 }
 
 void Attack_On8_mega::getguessKey()
@@ -168,7 +199,7 @@ void Attack_On8_mega::getguessKey()
 			//当list有大量重复的话，这里有问题
 			u32 tempi = i, tempj = j;
 			while (guess0[i + 1] == guess0[i] && (i + 1 < 65536))i++;
-			while (guess0[j + 1] == guess0[j] && (j + 1 < 65536))j++;
+			while (guess1[j + 1] == guess1[j] && (j + 1 < 65536))j++;
 			for(int p=tempi;p<=i;p++)
 				for (int q = tempj; q <= j; q++) {
 					testkeycount++;

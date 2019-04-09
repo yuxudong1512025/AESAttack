@@ -33,6 +33,12 @@
     <ClInclude Include="Attack_On_Round8_Changed.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Attack_On_Round7.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="guessNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -51,6 +57,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Attack_On_Round8_Changed.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Attack_On_Round7.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="guessNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

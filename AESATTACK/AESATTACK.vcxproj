@@ -155,17 +155,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AES.h" />
+    <ClInclude Include="Attack_On_Round7.h" />
     <ClInclude Include="Attack_On_Round8.h" />
     <ClInclude Include="Attack_On_Round8_Changed.h" />
     <ClInclude Include="Attack_On_Round9.h" />
+    <ClInclude Include="guessNode.h" />
     <ClInclude Include="normal_encryption_test.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
     <ClCompile Include="AESATTACK.cpp" />
+    <ClCompile Include="Attack_On_Round7.cpp" />
     <ClCompile Include="Attack_On_Round8_Changed.cpp" />
     <ClCompile Include="Attack_On_Round9.cpp" />
+    <ClCompile Include="guessNode.cpp" />
     <ClCompile Include="normal_encryption_test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
