@@ -63,89 +63,65 @@ u8 Inv_S_Box[256] = {
 
 */
 
-__global__ void uncode(u8* InvSbox ,u8 * cipher, u8 *record, int Countn, u8 info1, u8 info2) {//blocks=256,threads=256,cipher=2*countn个byte 分上半组和下半组 0,7/10,13
+__global__ void uncode(u8* InvSbox, u8 * cipher, u8 *record, int Countn, u8 info1, u8 info2) {//blocks=256,threads=256,cipher=2*countn个byte 分上半组和下半组 0,7/10,13
 	u8 idx = threadIdx.x;
 	u8 bdx = blockIdx.x;
 	u32 it = (idx * 256 + bdx);
 	u8 temp, temp1;
-	for (int i = 0; i < Countn; i ++ ) {
+	for (int i = 0; i < Countn; i++) {
 		temp = InvSbox[idx ^ cipher[2 * i]];
 		temp1 = InvSbox[bdx ^ cipher[2 * i + 1]];
-		record [ i * 65536 + it] = GFMul(temp, info1) ^ GFMul(temp1, info2);
+		record[i * 65536 + it] = GFMul(temp, info1) ^ GFMul(temp1, info2);
 	}
 }
 
 #define doublef(x) (u32)(x*x)
 //sei公式编写，求平方和，求
 
-__global__ void getMaxSEI(u32 *maxSEI, u32 *maxKey, u32 *testkey) {//<<<(16384,1),(1024,1)>>>======<<<(256,1)(256,1)>>>
+__global__ void getMaxSEI(u32 *maxSEI, u32 *maxKey, u32 *testkey,u32 *testSEI,int id) {//<<<(16384,1),(1024,1)>>>======<<<(256,1)(256,1)>>>
 	const u32 tid = threadIdx.x;
 	const u32 it = tid + blockIdx.x*blockDim.x;
 	for (int stride = blockDim.x *gridDim.x / 2; stride > 0; stride = stride >> 1) {
-		if (it < stride){
-			if (maxSEI[it] < maxSEI[it + stride]) {
-				maxSEI[it] = maxSEI[it + stride];
-				maxKey[it] = maxKey[it + stride];
-			}
-			__syncthreads();
+		if (it + stride < stride * 2 && maxSEI[it] <= maxSEI[it + stride]) {
+			maxSEI[it] = maxSEI[it + stride];
+			maxKey[it] = maxKey[it + stride];
 		}
 		__syncthreads();
 	}
-
-	if (it == 0)testkey[0] = maxKey[it];
-}
-
-__global__ void  kernel(u8 *record0, u8 *record1, int Countn, u32 *maxSEI, u32 *maxKey) {//65536*256*256*1
-	u32 idx = threadIdx.x;
-	u32 right = (blockIdx.y*blockDim.x) + threadIdx.x;
-	u32 left = blockIdx.x;
-	u32 key = (left << 16) + right;
-	__shared__ u32 partialMax[256];
-	__shared__ u32 partialKey[256];
-	u8 temp1, temp2;
-	u8 Count[256];
-	for (int i = 0; i < 256; i++)Count[i] = 0;
-	for (int i = 0; i < Countn; i++) {
-		temp1 = record0[i* 65536 + left];
-		temp2 = record1[i* 65536 + right];
-		Count[(temp1^temp2)] ++;
-	}
-	u32 temp = 0;
-	for (int i = 0; i < 256; i += 32) {
-		temp += doublef(Count[i]) + doublef(Count[i + 1]) + doublef(Count[i + 2]) + doublef(Count[i + 3]) + doublef(Count[i + 4]) + doublef(Count[i + 5]) + doublef(Count[i + 6]) + doublef(Count[i + 7]);
-		temp += doublef(Count[i + 8]) + doublef(Count[i + 9]) + doublef(Count[i + 10]) + doublef(Count[i + 11]) + doublef(Count[i + 12]) + doublef(Count[i + 13]) + doublef(Count[i + 14]) + doublef(Count[i + 15]);
-		temp += doublef(Count[i + 16]) + doublef(Count[i + 16]) + doublef(Count[i + 17]) + doublef(Count[i + 18]) + doublef(Count[i + 20]) + doublef(Count[i + 21]) + doublef(Count[i + 22]) + doublef(Count[i + 23]);
-		temp += doublef(Count[i + 24]) + doublef(Count[i + 25]) + doublef(Count[i + 26]) + doublef(Count[i + 27]) + doublef(Count[i + 28]) + doublef(Count[i + 29]) + doublef(Count[i + 30]) + doublef(Count[i + 31]);
-
-	}
-
-	partialKey[idx] = key;
-	partialMax[idx] = temp;
-	//printf("%d %d key=%d ,sei=%d key=%d\n", idx, 1, key, temp, key);
 	__syncthreads();
 
-	for (int stride = blockDim.x / 2; stride > 0; stride = stride >> 1) {
-		if (idx < stride) {
-			if (partialMax[idx] < partialMax[idx + stride]) {
-				partialMax[idx] = partialMax[idx + stride];
-				partialKey[idx] = partialKey[idx + stride];
-			}
-		}
-		__syncthreads();
+	if (it == 0) {
+		testkey[id] = maxKey[it];
+		testSEI[id] = maxSEI[it];
 	}
+}
 
+__global__ void  kernel(u8 *record0, u8 *record1, int Countn, u32 *maxSEI, u32 *maxKey,u8 *Count, int id) {//65536*256*256*1
+	u32 idx = threadIdx.x;
+	u32 right = (blockIdx.x*blockDim.x) + threadIdx.x;
+	u32 left = id;
+	u32 key = (left << 16) + right;
 
-	if (idx == 0) {
-		*(maxSEI + blockIdx.y + blockDim.x*blockIdx.x) = partialMax[idx];
-		*(maxKey + blockIdx.y + blockDim.x*blockIdx.x) = partialKey[idx];
+	u8 temp1, temp2;
+	for (int i = 0; i < 256; i++)Count[i] = 0;
+	for (int i = 0; i < Countn; i++) {
+		temp1 = record0[i * 65536 + left];
+		temp2 = record1[i * 65536 + right];
+		Count[(temp1^temp2) * 65536 + right ] ++;
 	}
+	u32 temp = 0;
+	for (int i = 0; i < 256; i ++) {
+		temp += doublef(Count[i * 65536 + right]);
 
+	}
+	maxKey[right] = key;
+	maxSEI[right] = temp;
 }
 
 
 
 extern "C"
-u32 getKey(u8*ciphertxt0, u8*ciphertxt1,int Countn,const u32 &trueKey) {
+u32 getKey(u8*ciphertxt0, u8*ciphertxt1, int Countn, const u32 &trueKey) {
 
 	FILE *fp = fopen("a.txt", "a+");
 	//get device information
@@ -165,7 +141,7 @@ u32 getKey(u8*ciphertxt0, u8*ciphertxt1,int Countn,const u32 &trueKey) {
 	dim3 block(blocks, 1);
 	dim3 grid(threads, 1);
 	///////////////////////////////////////////////////////
-	u16 left = trueKey >> 16,right=(u16)trueKey;
+	u16 left = trueKey >> 16, right = (u16)trueKey;
 	//fprintf(fp, "key=%x-%x\n", left, right);
 	//for (int i = 0; i < Countn; i++) {
 	//	fprintf(fp,"%x %x %x %x\n", ciphertxt0[2 * i], ciphertxt0[2 * i + 1], ciphertxt1[2 * i], ciphertxt1[2 * i + 1]);
@@ -173,7 +149,7 @@ u32 getKey(u8*ciphertxt0, u8*ciphertxt1,int Countn,const u32 &trueKey) {
 	///////////////////////////////////////////////////////
 	//printf_s("%d", nu8 * 2 + Countn * 4 + 16 * 16);
 
-	u8 *cipher1,*cipher2,*InvSbox;
+	u8 *cipher1, *cipher2, *InvSbox;
 
 	CHECK(cudaMalloc((void **)&InvSbox, 256 * sizeof(u8)));
 	CHECK(cudaMalloc((void **)&cipher1, Countn * 2 * sizeof(u8)));
@@ -188,75 +164,75 @@ u32 getKey(u8*ciphertxt0, u8*ciphertxt1,int Countn,const u32 &trueKey) {
 	CHECK(cudaMalloc((void **)&Record0, nu8));
 	CHECK(cudaMalloc((void **)&Record1, nu8));
 	u8 mode0 = 0x0e, mode1 = 0x0b;
-	uncode << <grid, block >> > (InvSbox,cipher1, Record0, Countn, mode0, mode1);
+	uncode << <grid, block >> > (InvSbox, cipher1, Record0, Countn, mode0, mode1);
 	CHECK(cudaDeviceSynchronize());//检查cuda设备同步情况
 
 	mode0 = 0x0d;  mode1 = 0x09;
-	uncode << <grid, block >> > (InvSbox,cipher2, Record1, Countn, mode0, mode1);
+	uncode << <grid, block >> > (InvSbox, cipher2, Record1, Countn, mode0, mode1);
 	CHECK(cudaDeviceSynchronize());//检查cuda设备同步情况
 
-	u8 *hostRecord0, *hostRecord1;
-	hostRecord0 = (u8 *)malloc(nu8);
-	hostRecord1 = (u8 *)malloc(nu8);
+	//u8 *hostRecord0, *hostRecord1;
+	//hostRecord0 = (u8 *)malloc(nu8);
+	//hostRecord1 = (u8 *)malloc(nu8);
 
-	CHECK(cudaMemcpy(hostRecord0, Record0, nu8, cudaMemcpyDeviceToHost));
-	CHECK(cudaMemcpy(hostRecord1, Record1, nu8, cudaMemcpyDeviceToHost));
+	//CHECK(cudaMemcpy(hostRecord0, Record0, nu8, cudaMemcpyDeviceToHost));
+	//CHECK(cudaMemcpy(hostRecord1, Record1, nu8, cudaMemcpyDeviceToHost));
 
 
-		//for (int j = 0; j < Countn; j++) {
-		//	fprintf(fp,"%x-%x ", hostRecord0[j*65536+left], hostRecord1[j * 65536+right]);
-		//	fprintf(fp, "%x ", hostRecord0[j * 65536 + left]^hostRecord1[j * 65536 + right]);
-		//}fprintf(fp,"\n");
+	//for (int j = 0; j < Countn; j++) {
+	//	fprintf(fp,"%x-%x ", hostRecord0[j*65536+left], hostRecord1[j * 65536+right]);
+	//	fprintf(fp, "%x ", hostRecord0[j * 65536 + left]^hostRecord1[j * 65536 + right]);
+	//}fprintf(fp,"\n");
 
-		
+
 
 
 	dim3 block2(blocks, 1);
-	dim3 grid2(roundn, blocks);
+	dim3 grid2(blocks, 1);
 
-	nu8 = blocks * blocks*blocks * sizeof(u32);
-	u32 *maxSEI;
-	u32 *maxKey;
+	nu8 = blocks * blocks * sizeof(u32);
+	u32 *maxSEI, *maxKey, *testSEI, *testkey;
+	u8 *Count;
+
+	CHECK(cudaMalloc((void **)&maxSEI, nu8));
+	CHECK(cudaMalloc((void **)&maxKey, nu8));
+	CHECK(cudaMalloc((void **)&testSEI, nu8));
+	CHECK(cudaMalloc((void **)&testkey, nu8));
+	CHECK(cudaMalloc((void **)&Count, blocks* blocks* blocks * sizeof(u8)));
+
+	for (int i = 0; i < 65536; i++) {
+		CHECK(cudaMemset(Count, 0, blocks* blocks* blocks * sizeof(u8)));
+		kernel << <grid2, block2 >> > (Record0, Record1, Countn, maxSEI, maxKey,Count,i);
+		getMaxSEI << <grid2, block2 >> > (maxSEI, maxKey, testkey, testSEI,i);
+	}
+	
 
 
-	cudaMalloc((void **)&maxSEI, nu8);
-	cudaMalloc((void **)&maxKey, nu8);
+	u32 *SEIlist = (u32 *)malloc(nu8);
+	u32 *KEYlist = (u32 *)malloc(nu8);
+	CHECK(cudaMemcpy(SEIlist, testSEI, nu8, cudaMemcpyDeviceToHost));
+	CHECK(cudaMemcpy(KEYlist, testkey, nu8, cudaMemcpyDeviceToHost));
 
-	kernel << <grid2, block2 >> > (Record0, Record1, Countn, maxSEI, maxKey);
-	CHECK(cudaDeviceSynchronize());//检查cuda设备同步情况
 
-	dim3 grid3(blocks*blocks, 1);
-	u32 *testKey;
-	cudaMalloc((void **)&testKey, sizeof(u32));
-
-	u32 *SEIlist = (u32 *)malloc(sizeof(u32)*nu8);
-	u32 *KEYlist = (u32 *)malloc(sizeof(u32)*nu8);
-	cudaMemcpy(SEIlist, maxSEI, nu8, cudaMemcpyDeviceToHost);
-	cudaMemcpy(KEYlist, maxKey, nu8, cudaMemcpyDeviceToHost);
-	u32 tempit = (left << 8) + (right >> 8);
-	printf("%x %x\n", SEIlist[tempit], KEYlist[tempit]);
-	/*u32 tempSEI = 0, tempkey;
-	for (int i = 0 ; i < 100; i++) {
-		cout << SEIlist[i] << " " << KEYlist[i] << endl;
-	}*/
+	u32 ans = 0, sei = 0;
+	for (int i = 0; i < 65536; i++) {
+		if (sei < SEIlist[i]) {
+			sei = SEIlist[i];
+			ans = KEYlist[i];
+		}
+	}
+	printf("%d--%x\n", sei, ans);
+	printf("success\n");
+	CHECK(cudaFree(Record0));
+	CHECK(cudaFree(Record1));
+	CHECK(cudaFree(cipher1));
+	CHECK(cudaFree(cipher2));
+	CHECK(cudaFree(maxSEI));
+	CHECK(cudaFree(maxKey));
+	CHECK(cudaFree(Count));
+	CHECK(cudaFree(testkey));
+	CHECK(cudaFree(testSEI));
 	free(SEIlist);
 	free(KEYlist);
-
-	getMaxSEI << <grid3, block2 >> > (maxSEI, maxKey, testKey);
-	CHECK(cudaDeviceSynchronize());//检查cuda设备同步情况
-	u32 *ans = (u32 *)malloc(sizeof(u32));
-	cudaMemcpy(ans, testKey, sizeof(u32), cudaMemcpyDeviceToHost);
-	u32 temp = (*ans);
-
-	printf("success\n");
-	cudaFree(Record0);
-	cudaFree(Record1);
-	cudaFree(cipher1);
-	cudaFree(cipher2);
-	cudaFree(maxSEI);
-	cudaFree(maxKey);
-	cudaFree(testKey);
-	free(ans);
-
-	return temp;
+	return ans;
 }

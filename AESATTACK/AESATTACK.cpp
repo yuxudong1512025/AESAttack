@@ -7,12 +7,13 @@
 using namespace std;
 #include"Attack_On_Round8_Changed.h"
 #include"Attack_On_Round7.h"
+#include"Attack_On_Round8.h"
 
 
 int main(int argc, char **argv)
 {
-	Attack_On7 a7(5, 4, 0.8);
-	a7.test();
+	Attack_On8 a8(16,1);
+	a8.test();
 
 	return 0;
 }

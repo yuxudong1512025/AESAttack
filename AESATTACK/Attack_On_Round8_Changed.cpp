@@ -248,3 +248,11 @@ void Attack_On8_mega::test()
 	}else cout << "使用 " << countn << " 组明文,猜测key列表有 " << testkeycount << "个 其中不包含正确的key" << endl;
 }
 
+void Attack_On8_mega::initial()
+{
+	key_inlist=false;
+	testkeycount=0;
+	if (guess0 != NULL)free(guess0);
+	if (guess1 != NULL)free(guess1);
+}
+

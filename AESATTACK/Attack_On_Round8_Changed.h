@@ -55,5 +55,5 @@ public:
 	void setguess(u8 type0, u8 type1,int mode);
 	void getguessKey();
 	void test();
-
+	void initial();
 };

@@ -36,11 +36,17 @@ void Attack_On7::test()
 			setbrench(mode,j);
 			brench[j].getguessKey();
 		}
+		cout << "使用匹配串：" << mode << endl;
+		bool flag = brench[0].key_inlist& brench[1].key_inlist& brench[2].key_inlist& brench[3].key_inlist;
+		if (flag == true) {
+			cout << "使用 " << countn << " 组明文,猜测key列表有 " << brench[0].testkeycount << "*" << brench[1].testkeycount << "*" << brench[2].testkeycount << "*" << brench[3].testkeycount << "个 其中包含正确的key" << endl;
+		}
+		else cout << "使用 " << countn << " 组明文,猜测key列表有 " << brench[0].testkeycount << "*" << brench[1].testkeycount << "*" << brench[2].testkeycount << "*" << brench[3].testkeycount << "个 其中不包含正确的key" << endl;
+		for (int j = 0; j < 4; j++) {
+			
+		}
 	}
-	bool flag = brench[0].key_inlist& brench[1].key_inlist& brench[2].key_inlist& brench[3].key_inlist;
-	if (flag == true) {
-		cout << "使用 " << countn << " 组明文,猜测key列表有 " << brench[0].testkeycount << "*" << brench[1].testkeycount << "*" << brench[2].testkeycount << "*" << brench[3].testkeycount << "个 其中包含正确的key" << endl;
-	}else cout << "使用 " << countn << " 组明文,猜测key列表有 " << brench[0].testkeycount << "*" << brench[1].testkeycount << "*" << brench[2].testkeycount << "*" << brench[3].testkeycount << "个 其中不包含正确的key" << endl;
+	
 
 
 	//u8 keyk[4];
@@ -162,7 +168,7 @@ void Attack_On7::encryption_to7(u8 in[16], int n)
 
 void Attack_On7::inject(u8 in[16])
 {
-	double success = rand() * 1000 % 100; 
+	int success = rand() * 1007 % 100; 
 	
 	if(success<injectsuccess*100){
 		in[0]=fault[0]; 
@@ -187,7 +193,7 @@ void Attack_On7::encryption_to10(u8 in[16], int n)
 	SubBytes(in);
 	ShiftRows(in);
 
-	
+	printf("after shiftrow %x %x %x %x\n", in[0], in[7], in[10], in[13]);
 
 	MixColumns(in);
 	AddRoundKey(in, key);

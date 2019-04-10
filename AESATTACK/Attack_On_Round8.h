@@ -2,11 +2,15 @@
 #include"pch.h"
 #include"AES.h"
 
+extern "C"
+u32 getKey(u8*ciphertxt0, u8*ciphertxt1, int Countn, const u32 &trueKey);
+
 class Attack_On8 :public AES {
 public:
 
 	u8 *plaintxt;
-	u8 *fault_list;
+	int faultmode;
+//	u8 *fault_list;
 	u8 *ciphertxt_list_up;
 	u8 *ciphertxt_list_down;
 	int countn;
@@ -26,5 +30,16 @@ public:
 
 	7 二分猜测使用组数（int）导入cuda计算预测key值，观察和正确的是否一样
 	*/
-
+	////////////function////////////////////////////////////
+	Attack_On8(int n, int mode=0);
+	Attack_On8(){
+		set_Key();
+	}
+	~Attack_On8();
+	void reset(int n, int mode = 0);
+	void setRandPlaintxtAndFault(u32 seed = time(NULL));
+	void encryption_to8(u8 in[16], int n);
+	void inject(u8 in[16], int n, u32 seed = time(NULL));
+	void encryption_to10(u8 in[16], int n);
+	void test();
 };

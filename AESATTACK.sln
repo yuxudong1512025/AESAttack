@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AESATTACK", "AESATTACK\AESATTACK.vcxproj", "{F865D9DD-840B-4EB2-B06E-363FA4FD6833}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAtest4", "..\CUDA_project1\CUDAtest4\CUDAtest4.vcxproj", "{FB0B9892-CEE2-4C92-8069-6ED143585649}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,12 @@ Global
 		{F865D9DD-840B-4EB2-B06E-363FA4FD6833}.Release|x64.Build.0 = Release|x64
 		{F865D9DD-840B-4EB2-B06E-363FA4FD6833}.Release|x86.ActiveCfg = Release|Win32
 		{F865D9DD-840B-4EB2-B06E-363FA4FD6833}.Release|x86.Build.0 = Release|Win32
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Debug|x64.ActiveCfg = Debug|x64
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Debug|x64.Build.0 = Debug|x64
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Debug|x86.ActiveCfg = Debug|x64
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Release|x64.ActiveCfg = Release|x64
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Release|x64.Build.0 = Release|x64
+		{FB0B9892-CEE2-4C92-8069-6ED143585649}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

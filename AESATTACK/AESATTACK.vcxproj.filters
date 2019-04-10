@@ -65,9 +65,13 @@
     <ClCompile Include="guessNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Attack_On_Round8.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CUDAtest1.cu" />
-    <CudaCompile Include="Attack_On8.cu" />
+    <CudaCompile Include="new_stream.cu">
+      <Filter>头文件</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

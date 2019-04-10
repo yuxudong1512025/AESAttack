@@ -167,6 +167,7 @@
     <ClCompile Include="AES.cpp" />
     <ClCompile Include="AESATTACK.cpp" />
     <ClCompile Include="Attack_On_Round7.cpp" />
+    <ClCompile Include="Attack_On_Round8.cpp" />
     <ClCompile Include="Attack_On_Round8_Changed.cpp" />
     <ClCompile Include="Attack_On_Round9.cpp" />
     <ClCompile Include="guessNode.cpp" />
@@ -179,8 +180,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Attack_On8.cu" />
-    <CudaCompile Include="CUDAtest1.cu" />
+    <CudaCompile Include="new_stream.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
